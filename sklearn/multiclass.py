@@ -27,10 +27,10 @@ from .metrics.pairwise import euclidean_distances
 from .utils import check_random_state
 
 
-def _fit_binary(estimator, X, y):
+def _fit_binary(estimator, X, y, **kwargs):
     """Fit a single binary estimator."""
     estimator = clone(estimator)
-    estimator.fit(X, y)
+    estimator.fit(X, y, **kwargs)
     return estimator
 
 
@@ -51,13 +51,13 @@ def _check_estimator(estimator):
                          "decision_function or predict_proba!")
 
 
-def fit_ovr(estimator, X, y):
+def fit_ovr(estimator, X, y, **kwargs):
     """Fit a one-vs-the-rest strategy."""
     _check_estimator(estimator)
 
     lb = LabelBinarizer()
     Y = lb.fit_transform(y)
-    estimators = [_fit_binary(estimator, X, Y[:, i])
+    estimators = [_fit_binary(estimator, X, Y[:, i], **kwargs)
                   for i in range(Y.shape[1])]
     return estimators, lb
 
@@ -109,7 +109,7 @@ class OneVsRestClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, estimator):
         self.estimator = estimator
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         """Fit underlying estimators.
 
         Parameters
@@ -126,7 +126,7 @@ class OneVsRestClassifier(BaseEstimator, ClassifierMixin):
         -------
         self
         """
-        self.estimators_, self.label_binarizer_ = fit_ovr(self.estimator, X, y)
+        self.estimators_, self.label_binarizer_ = fit_ovr(self.estimator, X, y, **kwargs)
         return self
 
     def _check_is_fitted(self):
