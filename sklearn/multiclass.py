@@ -177,6 +177,10 @@ class OneVsRestClassifier(BaseEstimator, ClassifierMixin):
             raise AttributeError(
                 "Base estimator doesn't have an intercept_ attribute.")
         return np.array([e.intercept_.ravel() for e in self.estimators_])
+        
+    def decision_function(self, X):
+        Y = np.dot(X, self.coef_.T) + self.intercept_.T
+        return Y
 
 
 def _fit_ovo_binary(estimator, X, y, i, j):
